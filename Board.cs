@@ -9,8 +9,10 @@ namespace Linear
     class Board
     {
         const char CIRCLE = '\u25cf';
-        public TileType[,] _tile;
-        public int _size;
+        public TileType[,] Tile { get; private set; }
+        public int Size { get; private set; }
+
+        Player _player;
 
         public enum TileType
         { 
@@ -18,16 +20,18 @@ namespace Linear
             Wall,
         }
 
-        public void Initialize(int size)
+        public void Initialize(int size, Player player)
         {
             if (size % 2 == 0)
                 return;
 
-            _tile = new TileType[size, size];
-            _size = size;
+            _player = player;
 
-            GenerateByBinaryTree(_size);
-            GenerateBySideWinder(_size);
+            Tile = new TileType[size, size];
+            Size = size;
+
+            GenerateByBinaryTree(Size);
+            GenerateBySideWinder(Size);
         }
 
         private void GenerateBySideWinder(int size)
@@ -38,9 +42,9 @@ namespace Linear
                 for (int x = 0; x < size; x++)
                 {
                     if (x % 2 == 0 || y % 2 == 0)
-                        _tile[y, x] = TileType.Wall;
+                        Tile[y, x] = TileType.Wall;
                     else
-                        _tile[y, x] = TileType.Empty;
+                        Tile[y, x] = TileType.Empty;
                 }
             }
 
@@ -59,25 +63,25 @@ namespace Linear
 
                     if (y == size - 2)
                     {
-                        _tile[y, x + 1] = TileType.Empty;
+                        Tile[y, x + 1] = TileType.Empty;
                         continue;
                     }
 
                     if (x == size - 2)
                     {
-                        _tile[y + 1, x] = TileType.Empty;
+                        Tile[y + 1, x] = TileType.Empty;
                         continue;
                     }
 
                     if (rand.Next(0, 2) == 0)
                     {
-                        _tile[y, x + 1] = TileType.Empty;
+                        Tile[y, x + 1] = TileType.Empty;
                         count++;
                     }
                     else
                     {
                         int randomIndex = rand.Next(0, count);
-                        _tile[y + 1, x - randomIndex * 2] = TileType.Empty;
+                        Tile[y + 1, x - randomIndex * 2] = TileType.Empty;
                         count = 1;
                     }
                 }
@@ -92,9 +96,9 @@ namespace Linear
                 for (int x = 0; x < size; x++)
                 {
                     if (x % 2 == 0 || y % 2 == 0)
-                        _tile[y, x] = TileType.Wall;
+                        Tile[y, x] = TileType.Wall;
                     else
-                        _tile[y, x] = TileType.Empty;
+                        Tile[y, x] = TileType.Empty;
                 }
             }
 
@@ -112,23 +116,23 @@ namespace Linear
 
                     if (y == size - 2)
                     {
-                        _tile[y, x + 1] = TileType.Empty;
+                        Tile[y, x + 1] = TileType.Empty;
                         continue;
                     }
 
                     if (x == size - 2)
                     {
-                        _tile[y + 1, x] = TileType.Empty;
+                        Tile[y + 1, x] = TileType.Empty;
                         continue;
                     }
 
                     if (rand.Next(0, 2) == 0)
                     {
-                        _tile[y, x + 1] = TileType.Empty;
+                        Tile[y, x + 1] = TileType.Empty;
                     }
                     else
                     {
-                        _tile[y + 1, x] = TileType.Empty;
+                        Tile[y + 1, x] = TileType.Empty;
                     }
                 }
             }
@@ -138,11 +142,16 @@ namespace Linear
         {
             ConsoleColor prevColor = Console.ForegroundColor;
 
-            for (int y = 0; y < _size; y++)
+            for (int y = 0; y < Size; y++)
             {
-                for (int x = 0; x < _size; x++)
+                for (int x = 0; x < Size; x++)
                 {
-                    Console.ForegroundColor = GetTileColor(_tile[y, x]);
+                    // 플레이어 좌표를 갖고 와서, 그 좌표랑 현재 y, x가 일치하면 플레이어 전용 색상으로 표시.
+                    if (y == _player.PosY && x == _player.PosX)
+                        Console.ForegroundColor = ConsoleColor.Blue;
+                    else
+                        Console.ForegroundColor = GetTileColor(Tile[y, x]);
+
                     Console.Write(CIRCLE);
                 }
                 Console.WriteLine();
