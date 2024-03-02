@@ -27,7 +27,61 @@ namespace Linear
             _size = size;
 
             GenerateByBinaryTree(_size);
+            GenerateBySideWinder(_size);
+        }
 
+        private void GenerateBySideWinder(int size)
+        {
+            // 막는 작업 진행.
+            for (int y = 0; y < size; y++)
+            {
+                for (int x = 0; x < size; x++)
+                {
+                    if (x % 2 == 0 || y % 2 == 0)
+                        _tile[y, x] = TileType.Wall;
+                    else
+                        _tile[y, x] = TileType.Empty;
+                }
+            }
+
+            // 랜덤하게 길을 뚫는 작업 진행.
+            Random rand = new Random();
+            for (int y = 0; y < size; y++)
+            {
+                int count = 1;
+                for (int x = 0; x < size; x++)
+                {
+                    if (x % 2 == 0 || y % 2 == 0)
+                        continue;
+
+                    if (x == size - 2 && y == size - 2)
+                        continue;
+
+                    if (y == size - 2)
+                    {
+                        _tile[y, x + 1] = TileType.Empty;
+                        continue;
+                    }
+
+                    if (x == size - 2)
+                    {
+                        _tile[y + 1, x] = TileType.Empty;
+                        continue;
+                    }
+
+                    if (rand.Next(0, 2) == 0)
+                    {
+                        _tile[y, x + 1] = TileType.Empty;
+                        count++;
+                    }
+                    else
+                    {
+                        int randomIndex = rand.Next(0, count);
+                        _tile[y + 1, x - randomIndex * 2] = TileType.Empty;
+                        count = 1;
+                    }
+                }
+            }
         }
 
         private void GenerateByBinaryTree(int size)
